@@ -16,4 +16,10 @@
         android:layout_height="wrap_content"
         android:text="方法2" />
 
+    <Button
+        android:id="@+id/method3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="方法3" />
+
 </LinearLayout>

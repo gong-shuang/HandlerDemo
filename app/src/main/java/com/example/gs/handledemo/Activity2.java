@@ -18,10 +18,9 @@ import static java.lang.Thread.sleep;
 public class Activity2 extends AppCompatActivity implements View.OnClickListener{
     public static final int UPDATE = 1;
 
-    private MyThread thread;
-
     private Handler handler1;//将mHandler指定轮询的Looper
     private Handler handler2;//将mHandler指定轮询的Looper
+    private LoopThread loopThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,19 +28,20 @@ public class Activity2 extends AppCompatActivity implements View.OnClickListener
         setContentView(R.layout.activity_2);
 
         method1();
-
         method2();
+        method3();
 
         Button button = (Button) findViewById(R.id.method1);
         button.setOnClickListener(this);
-
         button = (Button) findViewById(R.id.method2);
+        button.setOnClickListener(this);
+        button = (Button) findViewById(R.id.method3);
         button.setOnClickListener(this);
     }
 
     //方法1
     public void method1(){
-        thread = new MyThread();
+        MyThread thread = new MyThread();
         thread.start();//千万别忘记开启这个线程
 
         delay(1000);  //在Handler初始化的时候，thread.looper还没有初始化，所以加一个延时
@@ -80,6 +80,36 @@ public class Activity2 extends AppCompatActivity implements View.OnClickListener
         };
     }
 
+    //方法3
+    public void method3(){
+        loopThread = new LoopThread();
+        Thread thread = new Thread(loopThread);
+        thread.start();
+    }
+
+    public class LoopThread implements Runnable {
+
+        public Handler mHandler = null;
+
+        @Override
+        public void run() {
+            Looper.prepare();
+            mHandler = new Handler() {
+                public void handleMessage(Message msg) {
+                    switch (msg.what) {
+                        case UPDATE:
+                            // 在这里可以进行UI操作
+                            Log.d("当前子线程是--3--->",Thread.currentThread()+"");
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            };
+            Looper.loop();
+        }
+    }
+
 
     private void delay(int ms){
         try {
@@ -114,6 +144,12 @@ public class Activity2 extends AppCompatActivity implements View.OnClickListener
                 Message message2 = new Message();
                 message2.what = UPDATE;
                 handler2.sendMessage(message2);
+                break;
+            case R.id.method3:
+                //下面是主线程发送消息
+                Message message3 = new Message();
+                message3.what = UPDATE;
+                loopThread.mHandler.sendMessage(message3);
                 break;
             default:
                 break;

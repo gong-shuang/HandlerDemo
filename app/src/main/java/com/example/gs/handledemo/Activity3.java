@@ -42,7 +42,6 @@ public class Activity3 extends AppCompatActivity implements View.OnClickListener
 
                 };
                 Looper.loop();//开始轮循
-
             }
         }).start();
     }

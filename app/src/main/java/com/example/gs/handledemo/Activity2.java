@@ -44,7 +44,17 @@ public class Activity2 extends AppCompatActivity implements View.OnClickListener
         MyThread thread = new MyThread();
         thread.start();//千万别忘记开启这个线程
 
-        delay(1000);  //在Handler初始化的时候，thread.looper还没有初始化，所以加一个延时
+//        delay(1000);  //在Handler初始化的时候，thread.looper还没有初始化，所以加一个延时
+        // 或者使用 wait() 方法。
+        synchronized (thread) {
+            if(thread.looper == null) {
+                try{
+                    thread.wait();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
 
         handler1 = new Handler(thread.looper){
             public void handleMessage(Message msg) {
@@ -126,6 +136,10 @@ public class Activity2 extends AppCompatActivity implements View.OnClickListener
         public void run() {
             Looper.prepare();//创建该子线程的Looper
             looper = Looper.myLooper();//取出该子线程的Looper
+            // 使用 notify() 方法唤醒。
+            synchronized (this) {
+                this.notify();
+            }
             Looper.loop();//只要调用了该方法才能不断循环取出消息
         }
     }
